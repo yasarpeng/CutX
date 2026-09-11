@@ -38,23 +38,16 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Restore NuGet packages
+      - name: Publish self-contained single-file GUI
         run: |
           cd winui
-          msbuild CutX.GUI/CutX.GUI.csproj -t:Restore -p:EnableWindowsTargeting=true -p:Platform=x64
-      - name: Build CutX.GUI with MSBuild
+          dotnet publish CutX.GUI/CutX.GUI.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64 -p:EnableWindowsTargeting=true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+      - name: Package GUI
         run: |
-          cd winui
-          msbuild CutX.GUI/CutX.GUI.csproj -p:Configuration=Release -p:EnableWindowsTargeting=true -p:Platform=x64
-      - name: Upload obj on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-obj
-          path: winui/CutX.GUI/obj/
-      - name: Upload GUI exe on success
-        if: success()
+          cd winui/publish
+          Compress-Archive -Path CutX.GUI.exe -DestinationPath ../../CutX.GUI-windows-x64.zip
+      - name: Upload GUI zip
         uses: actions/upload-artifact@v4
         with:
           name: CutX.GUI-windows-x64
-          path: winui/CutX.GUI/bin/
+          path: winui/CutX.GUI-windows-x64.zip
