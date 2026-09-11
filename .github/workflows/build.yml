@@ -5,7 +5,7 @@ on:
     branches: [ master, main ]
 
 jobs:
-  build:
+  build-cli:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -14,7 +14,6 @@ jobs:
           - { goos: darwin,  goarch: arm64, output: cutx-darwin-arm64 }
           - { goos: linux,   goarch: amd64, output: cutx-linux-amd64 }
           - { goos: linux,   goarch: arm64, output: cutx-linux-arm64 }
-          - { goos: windows, goarch: amd64, output: cutx-windows-amd64.exe }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -23,9 +22,26 @@ jobs:
       - name: Build ${{ matrix.target.output }}
         run: |
           CGO_ENABLED=0 GOOS=${{ matrix.target.goos }} GOARCH=${{ matrix.target.goarch }} \
-          go build -ldflags "-s -w -H windowsgui" \
-          -o dist/${{ matrix.target.output }} .
+          go build -ldflags "-s -w" -o dist/${{ matrix.target.output }} .
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target.output }}
           path: dist/${{ matrix.target.output }}
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: Build Windows GUI (Walk + CGO)
+        run: |
+          $env:CGO_ENABLED = 1
+          $env:GOOS = "windows"
+          $env:GOARCH = "amd64"
+          go build -ldflags "-s -w -H windowsgui" -o dist/cutx-windows-amd64.exe .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cutx-windows-amd64.exe
+          path: dist/cutx-windows-amd64.exe

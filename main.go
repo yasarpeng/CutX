@@ -5,7 +5,7 @@ import (
 	"runtime"
 
 	"github.com/pengyongshi/cutx/cmd"
-	"github.com/pengyongshi/cutx/internal/webui"
+	"github.com/pengyongshi/cutx/internal/gui"
 )
 
 var (
@@ -14,14 +14,13 @@ var (
 )
 
 func main() {
-	// If no arguments provided:
-	// - Windows: launch GUI (web server + browser)
-	// - macOS/Linux: launch interactive CLI menu
 	if len(os.Args) == 1 {
 		if runtime.GOOS == "windows" {
-			webui.Run(version, commit)
+			// Windows: launch native GUI window (like PuTTY)
+			gui.Run(version)
 			return
 		}
+		// macOS/Linux: interactive CLI menu
 		cmd.RunInteractive()
 		return
 	}
