@@ -36,32 +36,41 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Build CutX.GUI (capture all output)
-        shell: pwsh
+      - name: Install WinApp CLI
+        run: dotnet tool install --global winapp
+      - name: Create fresh WinUI project from template
         run: |
           cd winui
-          # Capture ALL output including XamlCompiler stderr
-          $output = dotnet build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 2>&1
-          $output | Out-File -FilePath ../build-output.txt -Encoding utf8
-          Write-Host $output
-          exit $LASTEXITCODE
-      - name: Show build output on failure
-        if: failure()
-        shell: pwsh
+          # Create a new project from the official template
+          winapp new --name CutX.GUI.New --template winui-mvvm --use-defaults
+          # Copy our source files into the new project
+          Copy-Item -Force CutX.GUI/Themes/DarkTheme.xaml CutX.GUI.New/Themes/ -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force CutX.GUI.New/Themes
+          Copy-Item -Force CutX.GUI/Themes/DarkTheme.xaml CutX.GUI.New/Themes/
+          Copy-Item -Force CutX.GUI/MainWindow.xaml CutX.GUI.New/
+          Copy-Item -Force CutX.GUI/MainWindow.xaml.cs CutX.GUI.New/
+          New-Item -ItemType Directory -Force CutX.GUI.New/Views
+          Copy-Item -Force CutX.GUI/Views/*.xaml CutX.GUI.New/Views/
+          Copy-Item -Force CutX.GUI/Views/*.xaml.cs CutX.GUI.New/Views/
+          New-Item -ItemType Directory -Force CutX.GUI.New/Models
+          Copy-Item -Force CutX.GUI/Models/*.cs CutX.GUI.New/Models/
+          New-Item -ItemType Directory -Force CutX.GUI.New/Services
+          Copy-Item -Force CutX.GUI/Services/*.cs CutX.GUI.New/Services/
+          Copy-Item -Force CutX.GUI/App.xaml CutX.GUI.New/ -ErrorAction SilentlyContinue
+          Copy-Item -Force CutX.GUI/App.xaml.cs CutX.GUI.New/ -ErrorAction SilentlyContinue
+      - name: Build with fresh template
         run: |
-          if (Test-Path build-output.txt) {
-            Write-Host "=== Full build output ==="
-            Get-Content build-output.txt
-          }
-      - name: Upload obj on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-obj
-          path: winui/CutX.GUI/obj/
+          cd winui/CutX.GUI.New
+          dotnet build -c Release -p:Platform=x64
       - name: Upload GUI exe on success
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: CutX.GUI-windows-x64
-          path: winui/CutX.GUI/bin/Release/*/win-x64/CutX.GUI.exe
+          path: winui/CutX.GUI.New/bin/Release/*/win-x64/CutX.GUI.New.exe
+      - name: Upload obj on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-obj
+          path: winui/CutX.GUI.New/obj/
