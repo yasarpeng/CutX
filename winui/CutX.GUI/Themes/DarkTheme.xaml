@@ -97,7 +97,7 @@
     </Style>
 
     <Style x:Key="MonoTextStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily">Cascadia Mono, Consolas, Courier New, monospace</Setter>
+        <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, Courier New, monospace" />
         <Setter Property="FontSize"   Value="12" />
         <Setter Property="LineHeight" Value="20" />
     </Style>

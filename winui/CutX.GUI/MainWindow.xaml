@@ -23,16 +23,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 
-    <Window.Resources>
-        <!-- Log entry data template -->
-        <DataTemplate x:Key="LogEntryTemplate">
-            <TextBlock Style="{StaticResource MonoTextStyle}"
-                       Foreground="{Binding LevelBrush}"
-                       Text="{Binding DisplayText}" />
-        </DataTemplate>
-    </Window.Resources>
-
     <Grid Background="{StaticResource BgBrush}">
+
+        <Grid.Resources>
+            <!-- Log entry data template -->
+            <DataTemplate x:Key="LogEntryTemplate">
+                <TextBlock Style="{StaticResource MonoTextStyle}"
+                           Foreground="{Binding LevelBrush}"
+                           Text="{Binding DisplayText}" />
+            </DataTemplate>
+        </Grid.Resources>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="48"  />   <!-- Top nav bar -->
