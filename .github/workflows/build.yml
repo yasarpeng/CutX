@@ -36,41 +36,70 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Install WinApp CLI
-        run: dotnet tool install --global winapp
-      - name: Create fresh WinUI project from template
+      - name: Build CutX.GUI with manual XamlCompiler capture
+        shell: pwsh
         run: |
           cd winui
-          # Create a new project from the official template
-          winapp new --name CutX.GUI.New --template winui-mvvm --use-defaults
-          # Copy our source files into the new project
-          Copy-Item -Force CutX.GUI/Themes/DarkTheme.xaml CutX.GUI.New/Themes/ -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Force CutX.GUI.New/Themes
-          Copy-Item -Force CutX.GUI/Themes/DarkTheme.xaml CutX.GUI.New/Themes/
-          Copy-Item -Force CutX.GUI/MainWindow.xaml CutX.GUI.New/
-          Copy-Item -Force CutX.GUI/MainWindow.xaml.cs CutX.GUI.New/
-          New-Item -ItemType Directory -Force CutX.GUI.New/Views
-          Copy-Item -Force CutX.GUI/Views/*.xaml CutX.GUI.New/Views/
-          Copy-Item -Force CutX.GUI/Views/*.xaml.cs CutX.GUI.New/Views/
-          New-Item -ItemType Directory -Force CutX.GUI.New/Models
-          Copy-Item -Force CutX.GUI/Models/*.cs CutX.GUI.New/Models/
-          New-Item -ItemType Directory -Force CutX.GUI.New/Services
-          Copy-Item -Force CutX.GUI/Services/*.cs CutX.GUI.New/Services/
-          Copy-Item -Force CutX.GUI/App.xaml CutX.GUI.New/ -ErrorAction SilentlyContinue
-          Copy-Item -Force CutX.GUI/App.xaml.cs CutX.GUI.New/ -ErrorAction SilentlyContinue
-      - name: Build with fresh template
-        run: |
-          cd winui/CutX.GUI.New
-          dotnet build -c Release -p:Platform=x64
+          # First do a restore to get NuGet packages
+          dotnet restore CutX.GUI.csproj -p:EnableWindowsTargeting=true -p:Platform=x64
+          
+          # Now build — capture everything
+          $psi = New-Object System.Diagnostics.ProcessStartInfo
+          $psi.FileName = "dotnet"
+          $psi.Arguments = "build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 -v:detailed"
+          $psi.UseShellExecute = $false
+          $psi.RedirectStandardOutput = $true
+          $psi.RedirectStandardError = $true
+          $psi.StandardOutputEncoding = [System.Text.Encoding]::UTF8
+          $psi.StandardErrorEncoding = [System.Text.Encoding]::UTF8
+          
+          $proc = New-Object System.Diagnostics.Process
+          $proc.StartInfo = $psi
+          
+          $stdoutBuilder = New-Object System.Text.StringBuilder
+          $stderrBuilder = New-Object System.Text.StringBuilder
+          
+          $stdoutAction = {
+            if (-not $EventArgs.Data) { return }
+            Write-Host $EventArgs.Data
+            [void]$stdoutBuilder.Append($EventArgs.Data + "`n")
+          }
+          $stderrAction = {
+            if (-not $EventArgs.Data) { return }
+            Write-Host "[STDERR] $EventArgs.Data"
+            [void]$stderrBuilder.Append($EventArgs.Data + "`n")
+          }
+          
+          $stdoutEvent = Register-ObjectEvent -InputObject $proc -EventName "OutputDataReceived" -Action $stdoutAction
+          $stderrEvent = Register-ObjectEvent -InputObject $proc -EventName "ErrorDataReceived" -Action $stderrAction
+          
+          $proc.Start() | Out-Null
+          $proc.BeginOutputReadLine()
+          $proc.BeginErrorReadLine()
+          $proc.WaitForExit()
+          
+          Write-Host "`n=== EXIT CODE: $($proc.ExitCode) ==="
+          
+          # Save full logs
+          $stdoutBuilder.ToString() | Out-File -FilePath ../stdout.txt -Encoding utf8
+          $stderrBuilder.ToString() | Out-File -FilePath ../stderr.txt -Encoding utf8
+          
+          Unregister-Event -SourceIdentifier $stdoutEvent.Name
+          Unregister-Event -SourceIdentifier $stderrEvent.Name
+          
+          exit $proc.ExitCode
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            stdout.txt
+            stderr.txt
+            winui/CutX.GUI/obj/
       - name: Upload GUI exe on success
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: CutX.GUI-windows-x64
-          path: winui/CutX.GUI.New/bin/Release/*/win-x64/CutX.GUI.New.exe
-      - name: Upload obj on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-obj
-          path: winui/CutX.GUI.New/obj/
+          path: winui/CutX.GUI/bin/Release/*/win-x64/CutX.GUI.exe
