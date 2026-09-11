@@ -36,10 +36,12 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - name: Add Windows SDK workload
+        run: dotnet workload install maui-windows
       - name: Build CutX.GUI
         run: |
           cd winui
-          dotnet build CutX.GUI/CutX.GUI.csproj -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 -v:detailed
+          dotnet build CutX.GUI/CutX.GUI.csproj -c Release -p:EnableWindowsTargeting=true -p:Platform=x64
       - name: Upload obj on failure
         if: failure()
         uses: actions/upload-artifact@v4
