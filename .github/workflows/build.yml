@@ -3,8 +3,6 @@ name: Build CutX
 on:
   push:
     branches: [ master, main ]
-  pull_request:
-    branches: [ master, main ]
 
 jobs:
   build-cli:
@@ -22,11 +20,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.24'
-      - name: Build ${{ matrix.target.output }}
+      - name: Build
         run: |
           CGO_ENABLED=0 GOOS=${{ matrix.target.goos }} GOARCH=${{ matrix.target.goarch }} \
-          go build -ldflags "-s -w -X 'github.com/pengyongshi/cutx/cmd.version=v1.0.0' -X 'github.com/pengyongshi/cutx/cmd.commit=${{ github.sha }}'" \
-          -o dist/${{ matrix.target.output }} .
+          go build -ldflags "-s -w" -o dist/${{ matrix.target.output }} .
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target.output }}
@@ -39,23 +36,32 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Verify SDK (global.json pins to 8.0)
+      - name: Build CutX.GUI (capture all output)
+        shell: pwsh
         run: |
           cd winui
-          dotnet --list-sdks
-      - name: Build CutX.GUI
+          # Capture ALL output including XamlCompiler stderr
+          $output = dotnet build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 2>&1
+          $output | Out-File -FilePath ../build-output.txt -Encoding utf8
+          Write-Host $output
+          exit $LASTEXITCODE
+      - name: Show build output on failure
+        if: failure()
+        shell: pwsh
         run: |
-          cd winui
-          dotnet build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 -v:detailed
+          if (Test-Path build-output.txt) {
+            Write-Host "=== Full build output ==="
+            Get-Content build-output.txt
+          }
+      - name: Upload obj on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-obj
+          path: winui/CutX.GUI/obj/
       - name: Upload GUI exe on success
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: CutX.GUI-windows-x64
           path: winui/CutX.GUI/bin/Release/*/win-x64/CutX.GUI.exe
-      - name: Upload obj on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: winui/CutX.GUI/obj/
