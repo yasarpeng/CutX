@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Storage.Pickers;
@@ -20,9 +21,7 @@ public sealed partial class VerifyPage : Page
 
     private async void VerifyDrop_Drop(object sender, DragEventArgs e)
     {
-        var def = e.DataView.GetDeferral();
         var files = await e.DataView.GetStorageItemsAsync();
-        def.Complete();
         if (files.Count > 0)
             SetManifestFile(files[0].Path);
     }

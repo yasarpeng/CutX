@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Storage.Pickers;
@@ -22,8 +23,8 @@ public sealed partial class SplitPage : Page
     private void DropZone_DragOver(object sender, DragEventArgs e)
     {
         e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
-        DropZone.BorderBrush = (Windows.UI.Xaml.Media.Brush)App.Current.Resources["AccentBrush"];
-        DropZone.Background = new Windows.UI.Xaml.Media.SolidColorBrush(
+        DropZone.BorderBrush = (Microsoft.UI.Xaml.Media.Brush)App.Current.Resources["AccentBrush"];
+        DropZone.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
             Windows.UI.Color.FromArgb(20, 78, 201, 176));
     }
 
@@ -34,17 +35,15 @@ public sealed partial class SplitPage : Page
 
     private void ResetDropZoneVisual()
     {
-        DropZone.BorderBrush = (Windows.UI.Xaml.Media.Brush)App.Current.Resources["StrokeBrush"];
-        DropZone.Background = new Windows.UI.Xaml.Media.SolidColorBrush(
+        DropZone.BorderBrush = (Microsoft.UI.Xaml.Media.Brush)App.Current.Resources["StrokeBrush"];
+        DropZone.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
             Windows.UI.Color.FromArgb(255, 31, 31, 34));
     }
 
     private async void DropZone_Drop(object sender, DragEventArgs e)
     {
         ResetDropZoneVisual();
-        var def = e.DataView.GetDeferral();
         var files = await e.DataView.GetStorageItemsAsync();
-        def.Complete();
         if (files.Count > 0)
             SetSelectedFile(files[0].Path);
     }
