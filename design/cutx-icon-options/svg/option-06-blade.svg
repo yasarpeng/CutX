@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#11151c"/>
+      <stop offset="100%" stop-color="#0a0e14"/>
+    </linearGradient>
+    <linearGradient id="doc6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d9bff"/>
+      <stop offset="100%" stop-color="#2563a0"/>
+    </linearGradient>
+    <filter id="shadow6" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+      <feOffset dx="0" dy="8"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="blade6">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg6)"/>
+  <g filter="url(#shadow6)">
+    <!-- Document/page -->
+    <rect x="136" y="96" width="240" height="320" rx="16" fill="url(#doc6)" opacity="0.9"/>
+    <!-- Text lines -->
+    <rect x="164" y="140" width="100" height="6" rx="3" fill="rgba(255,255,255,0.35)"/>
+    <rect x="164" y="160" width="140" height="6" rx="3" fill="rgba(255,255,255,0.3)"/>
+    <rect x="164" y="180" width="120" height="6" rx="3" fill="rgba(255,255,255,0.25)"/>
+    <rect x="164" y="200" width="160" height="6" rx="3" fill="rgba(255,255,255,0.2)"/>
+    <rect x="164" y="220" width="100" height="6" rx="3" fill="rgba(255,255,255,0.15)"/>
+    <!-- Cut line -->
+    <line x1="136" y1="256" x2="376" y2="256" stroke="#4cd964" stroke-width="4" filter="url(#blade6)" opacity="0.9"/>
+    <line x1="136" y1="256" x2="376" y2="256" stroke="#2da546" stroke-width="1.5" opacity="1"/>
+    <!-- Lower text lines (offset after cut) -->
+    <rect x="160" y="280" width="140" height="6" rx="3" fill="rgba(255,255,255,0.2)"/>
+    <rect x="160" y="300" width="100" height="6" rx="3" fill="rgba(255,255,255,0.15)"/>
+    <rect x="160" y="320" width="120" height="6" rx="3" fill="rgba(255,255,255,0.1)"/>
+  </g>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#11151c"/>
+      <stop offset="100%" stop-color="#0a0e14"/>
+    </linearGradient>
+    <linearGradient id="blue3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7fc4ff"/>
+      <stop offset="100%" stop-color="#2d7dd6"/>
+    </linearGradient>
+    <linearGradient id="green3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5ee07a"/>
+      <stop offset="100%" stop-color="#2da546"/>
+    </linearGradient>
+    <filter id="shadow3" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+      <feOffset dx="0" dy="8"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg3)"/>
+  <g filter="url(#shadow3)">
+    <!-- Central merge point -->
+    <circle cx="256" cy="256" r="18" fill="#1a2230" stroke="#4cd964" stroke-width="3"/>
+    <circle cx="256" cy="256" r="6" fill="#4cd964"/>
+    <!-- Left arrow (blue, split direction) -->
+    <g transform="rotate(-35 256 256)">
+      <path d="M 256 256 L 256 140 L 232 140 L 256 100 L 280 140 L 256 140" 
+            fill="none" stroke="url(#blue3)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+      <polygon points="256,90 236,130 276,130" fill="url(#blue3)"/>
+    </g>
+    <!-- Right arrow (green, merge direction) -->
+    <g transform="rotate(35 256 256)">
+      <path d="M 256 256 L 256 140 L 232 140 L 256 100 L 280 140 L 256 140" 
+            fill="none" stroke="url(#green3)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+      <polygon points="256,90 236,130 276,130" fill="url(#green3)"/>
+    </g>
+  </g>
+</svg>

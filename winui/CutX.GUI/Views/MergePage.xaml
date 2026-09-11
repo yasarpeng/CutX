@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MergePage — 合并操作界面 -->
+<Page
+    x:Class="CutX.GUI.Views.MergePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource BgBrush}">
+
+    <ScrollViewer Padding="0" Margin="0">
+        <StackPanel Orientation="Vertical" Spacing="16" Margin="0,0,0,24">
+
+            <TextBlock Text="合并 Merge" Style="{StaticResource SectionHeadingStyle}" />
+
+            <!-- Manifest file picker -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="清单文件 (.manifest.json)" Style="{StaticResource FieldLabelStyle}" />
+                <Border Style="{StaticResource DropZoneStyle}"
+                        AllowDrop="True"
+                        DragOver="ManifestDrop_DragOver"
+                        Drop="ManifestDrop_Drop"
+                        Tapped="ManifestDrop_Tapped">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE8A5;" FontSize="28"
+                                  Foreground="{StaticResource TextMutedBrush}" />
+                        <TextBlock Text="拖拽 .manifest.json 文件到此处"
+                                   FontSize="14" FontWeight="Medium"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Margin="0,10,0,0" />
+                        <TextBlock x:Name="ManifestFileText" Text="" FontSize="12"
+                                   FontFamily="Cascadia Mono, Consolas"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   Margin="0,6,0,0"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Parameters -->
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <TextBlock Text="合并模式" Style="{StaticResource FieldLabelStyle}" />
+                    <ComboBox x:Name="MergeModeCombo"
+                              SelectedIndex="0"
+                              HorizontalAlignment="Stretch"
+                              Background="{StaticResource CardBrush}"
+                              BorderBrush="{StaticResource StrokeBrush}"
+                              CornerRadius="6">
+                        <x:String>quick (快速合并，不校验)</x:String>
+                        <x:String>verify (边写边校验)</x:String>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="6">
+                    <TextBlock Text="输出目录" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox x:Name="MergeOutputText"
+                             PlaceholderText="留空 = 清单所在目录"
+                             Background="{StaticResource CardBrush}"
+                             BorderBrush="{StaticResource StrokeBrush}"
+                             CornerRadius="6"
+                             FontSize="13" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Force overwrite checkbox -->
+            <CheckBox x:Name="ForceOverwriteCheck"
+                      Content="强制覆盖已存在的输出文件"
+                      Foreground="{StaticResource TextSecondaryBrush}"
+                      FontSize="13" />
+
+            <!-- CTA -->
+            <Button x:Name="MergeButton"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Content="▶ 开始合并"
+                    Click="Merge_Click"
+                    HorizontalAlignment="Stretch"
+                    Margin="0,8,0,0" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

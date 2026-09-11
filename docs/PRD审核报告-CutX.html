@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRD 审核报告 · CutX 跨平台离线文件切割与合并工具</title>
+<style>
+  :root{
+    --bg:#eef1f5; --card:#ffffff; --ink:#1f2430; --muted:#5b6472; --faint:#8a93a3;
+    --line:#e4e8ee; --brand:#4f46e5; --brand-soft:#eef0fe;
+    --ok:#15803d; --ok-bg:#ecfdf3; --ok-line:#bbe7c8;
+    --warn:#b45309; --warn-bg:#fff8eb; --warn-line:#f5dca0;
+    --miss:#c2410c; --miss-bg:#fff1ec; --miss-line:#f6c9b6;
+    --danger:#dc2626; --danger-bg:#fef2f2; --danger-line:#f3c4c4;
+    --info:#2563eb; --info-bg:#eff5ff; --info-line:#cbdcfb;
+    --radius:14px; --shadow:0 1px 2px rgba(20,30,50,.04),0 6px 20px rgba(20,30,50,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.7;font-size:15px;-webkit-font-smoothing:antiased;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 20px 64px;}
+  h1{font-size:24px;margin:0 0 4px;letter-spacing:-.01em;}
+  h2{font-size:18px;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);letter-spacing:-.01em;}
+  h3{font-size:15px;margin:0 0 6px;}
+  p{margin:0 0 10px;} a{color:var(--brand);}
+  .muted{color:var(--muted);} .faint{color:var(--faint);font-size:13px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
+
+  .head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+  .head .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .tag{font-size:12px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 10px;}
+  .tag.alt{background:var(--brand-soft);color:var(--brand);border-color:#d9ddfb;font-weight:600;}
+  .metabar{font-size:13px;color:var(--muted);text-align:right;}
+
+  .verdict{padding:22px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--line);margin-bottom:18px;}
+  .verdict .row{display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
+  .gauge{flex:0 0 auto;text-align:center;min-width:140px;}
+  .gauge .num{font-size:42px;font-weight:700;line-height:1;letter-spacing:-.02em;}
+  .gauge .lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+  .bar{height:9px;border-radius:999px;background:#e7eaf0;overflow:hidden;margin-top:10px;}
+  .bar > i{display:block;height:100%;border-radius:999px;}
+  .vmain{flex:1;min-width:240px;}
+  .pill{display:inline-block;font-weight:700;font-size:15px;padding:6px 14px;border-radius:999px;margin-bottom:8px;}
+  .verdict-blocked .verdict{background:var(--danger-bg);border-color:var(--danger-line);}
+  .verdict-blocked .pill{background:var(--danger);color:#fff;}
+  .verdict-blocked .bar > i{background:var(--danger);}
+  .verdict-blocked .gauge .num{color:var(--danger);}
+  .verdict-conditional .verdict{background:var(--warn-bg);border-color:var(--warn-line);}
+  .verdict-conditional .pill{background:var(--warn);color:#fff;}
+  .verdict-conditional .bar > i{background:var(--warn);}
+  .verdict-conditional .gauge .num{color:var(--warn);}
+  .verdict-ready .verdict{background:var(--ok-bg);border-color:var(--ok-line);}
+  .verdict-ready .pill{background:var(--ok);color:#fff;}
+  .verdict-ready .bar > i{background:var(--ok);}
+  .verdict-ready .gauge .num{color:var(--ok);}
+
+  .summary{padding:18px 20px;border-radius:var(--radius);background:var(--card);border:1px solid var(--line);
+    border-left:5px solid var(--brand);margin-bottom:18px;box-shadow:var(--shadow);}
+  .summary .h{font-weight:700;font-size:15px;margin-bottom:8px;}
+
+  table.score{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--radius);
+    overflow:hidden;box-shadow:var(--shadow);font-size:14px;}
+  table.score th{background:#f4f5f7;padding:10px 12px;text-align:left;font-size:12px;color:var(--muted);
+    border-bottom:1px solid var(--line);text-transform:none;}
+  table.score td{padding:10px 12px;border-bottom:1px solid var(--line);}
+  table.score tr:last-child td{border-bottom:none;}
+  .badge{font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap;}
+  .badge-ok{color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-line);}
+  .badge-warn{color:var(--warn);background:var(--warn-bg);border:1px solid var(--warn-line);}
+  .badge-miss{color:var(--miss);background:var(--miss-bg);border:1px solid var(--miss-line);}
+  .badge-na{color:var(--faint);background:#f4f5f7;border:1px solid var(--line);}
+  .sev{font-size:11px;font-weight:700;}
+  .sev-b{color:var(--danger);} .sev-i{color:var(--warn);} .sev-s{color:var(--info);}
+
+  .cards{display:flex;flex-direction:column;gap:12px;}
+  .gap{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--line);
+    border-radius:10px;padding:14px 16px 16px;box-shadow:var(--shadow);}
+  .gap h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .gap .where{font-size:12px;color:var(--faint);margin-left:auto;font-weight:400;}
+  .gap .lead{color:var(--muted);margin:6px 0 0;}
+  .fix{margin-top:10px;padding:10px 14px;background:#f8fafc;border-radius:8px;}
+  .fix .h{font-weight:700;color:var(--brand);font-size:13px;margin-bottom:4px;}
+  .fix ul{margin:0;padding-left:18px;} .fix li{margin:4px 0;}
+  .card-blocker{border-left-color:var(--danger);}
+  .card-important{border-left-color:var(--warn);}
+  .card-suggest{border-left-color:var(--info);}
+  .chip{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;}
+  .chip-b{color:#fff;background:var(--danger);}
+  .chip-i{color:#fff;background:var(--warn);}
+  .chip-s{color:#fff;background:var(--info);}
+
+  .sec{padding:14px 16px;margin-bottom:10px;}
+  .sec h3{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .sec .body{font-size:14px;}
+  .sec .lab{font-size:12px;font-weight:700;color:var(--muted);}
+  .sec ul{margin:6px 0 0;padding-left:18px;} .sec li{margin:3px 0;}
+
+  .good{background:var(--ok-bg);border:1px solid var(--ok-line);border-radius:var(--radius);padding:14px 18px;}
+  .good ul{margin:6px 0 0;padding-left:18px;} .good li{margin:5px 0;}
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:0;}
+  ol.steps li{counter-increment:s;position:relative;padding:12px 14px 12px 48px;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;margin-bottom:8px;box-shadow:var(--shadow);}
+  ol.steps li::before{content:counter(s);position:absolute;left:12px;top:12px;width:24px;height:24px;
+    background:var(--brand);color:#fff;border-radius:50%;text-align:center;line-height:24px;font-weight:700;font-size:13px;}
+  ol.steps .owner{font-size:12px;color:var(--faint);}
+
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--faint);}
+  @media print{ body{background:#fff;} .card,.verdict,table.score,.gap,.summary,ol.steps li{box-shadow:none;}
+    h2{break-after:avoid;} .gap,.sec,ol.steps li{break-inside:avoid;} }
+</style>
+</head>
+
+<body class="verdict-conditional">
+<div class="wrap">
+
+  <!-- ========== 报告头 ========== -->
+  <div class="head">
+    <div>
+      <h1>PRD 审核报告</h1>
+      <div class="muted">CutX 跨平台离线文件切割与合并工具 · V1.0</div>
+      <div class="tags">
+        <span class="tag">功能类型:命令行工具</span>
+        <span class="tag">跨平台</span>
+        <span class="tag">离线运行</span>
+        <span class="tag alt">涉及数据契约(清单文件)</span>
+      </div>
+    </div>
+    <div class="metabar">
+      审核日期:2026-09-11<br>
+      共评估 17 个方面
+    </div>
+  </div>
+
+  <!-- ========== 总体裁决 ========== -->
+  <div class="verdict">
+    <div class="row">
+      <div class="gauge">
+        <div class="num">68<span style="font-size:22px">%</span></div>
+        <div class="lbl">完成度(指示性)</div>
+        <div class="bar"><i style="width:68%"></i></div>
+      </div>
+      <div class="vmain">
+        <span class="pill">有条件交付开发</span>
+        <p style="margin:0">这份文档的质量在命令行工具类 PRD 里属于上乘——命令格式、参数说明、异常处理表、退出码规范、
+        清单文件格式都写得具体且可执行。问题不在"写了多少",而在几个关键维度"写了但不够厚":没有显式列出"不做什么"，
+        验收标准散落在处理逻辑里而缺少正式的"给定条件→操作→预期结果"写法，风险有识别但没指定负责人和应对策略。
+        这些都不是从零补起，而是把已有内容收紧一档。补齐后可以到"可交付开发"。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 审核总结 ========== -->
+  <div class="summary">
+    <div class="h">审核总结</div>
+    <p>这份 PRD 明显是一个有工程思维的人写的。它做对了三件难做的事：一是把命令行接口写得非常具体——每个子命令的
+    参数、默认值、校验规则都有表格，工程师拿到就能直接写 argparse/cobra；二是异常处理表覆盖了大量真实场景（源文件
+    不存在、磁盘空间不足、分片校验失败、中途中断），而且每条都给了明确的退出码，这是很多 PRD 会漏的地方；三是技术
+    方案选型有理有据——选 Go 因为静态编译单一二进制、选 SHA-256 因为安全性高，不是拍脑袋。</p>
+    <p>完成度落在 68% 而不是更高，原因是几个"必填且阻断"的维度只到了"部分"而非"完整"。具体来说：文档没有一段显式的
+    "非目标"声明（只在迭代规划里暗示了 V2.0 才做压缩和加密，但没有明确说"本期不做"）；验收标准虽然通过处理逻辑和异常
+    表实际上覆盖了不少场景，但没有一条用"给定……当……则……"的格式写出来，工程师对"什么算做完了"没有可逐条勾选的
+    判据；风险清单列了四条技术风险但没有负责人、没有概率和影响的评估。这些每一条单独看都不算致命，但合在一起意味着
+    开发过程中还会遇到几个需要现场拍板的模糊地带。</p>
+    <p>裁决给"有条件交付"而不是"暂不可交付"，是因为没有任何阻断维度是完全缺失的——它们都有内容，只是不够厚。开发可以
+    先从骨架代码（命令行框架 + 流式切割 + 流式合并的核心逻辑）起步，同时收紧下面列出的几个条件。</p>
+  </div>
+
+  <!-- ========== 完成度概览 ========== -->
+  <h2>完成度概览</h2>
+  <table class="score">
+    <thead>
+      <tr><th>维度</th><th>状态</th><th>一句话点评</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>一句话问题陈述 <span class="sev sev-b">🔴阻断</span></td><td><span class="badge badge-ok">✅ 完整</span></td>
+        <td>角色（交付工程师）、障碍（文件大小限制+离线）、后果（无法传输）俱全，且没夹带方案。</td></tr>
+      <tr><td>目标可衡量 <span class="sev sev-i">🟡重要</span></td><td><span class="badge badge-warn">⚠️ 部分</span></td>
+        <td>有性能指标（≥500MB/s、≤50MB内存），但没有业务层面的"成功是什么样"的目标。</td></tr>
+      <tr><td>非目标 / 范围边界 <span class="sev sev-b">🔴阻断</span></td><td><span class="badge badge-warn">⚠️ 部分</span></td>
+        <td>迭代规划暗示了范围（V2才做压缩加密），但缺一段显式的"本期不做什么"。</td></tr>
+      <tr><td>用户故事 <span class="sev sev-i">🟡重要</span></td><td><span class="badge badge-warn">⚠️ 部分</span></td>
+        <td>用户画像和角色定义清楚，但没有正式的"作为……我希望……以便……"用户故事。</td></tr>
+      <tr><td>验收标准可测 <span class="sev sev-b">🔴阻断</span></td><td><span class="badge badge-warn">⚠️ 部分</span></td>
+        <td>处理逻辑和异常表实际上可测，但散落在散文式描述里，没有逐条可勾选的判据。</td></tr>
+      <tr><td>验收覆盖正常+边界+异常 <span class="sev sev-b">🔴阻断</span></td><td><span class="badge badge-warn">⚠️ 部分</span></td>
+        <td>异常覆盖很好，但几个边界没写行为：999分片上限、文件名特殊字符、Windows路径含空格。</td></tr>
+      <tr><td>优先级 / MVP 切分 <span class="sev sev-i">🟡重要</span></td><td><span class="badge badge-ok">✅ 完整</span></td>
+        <td>V1.0/V1.1/V2.0 三段切分清晰，MVP 范围明确。</td></tr>
+      <tr><td>北极星指标 <span class="sev sev-i">🟡重要</span></td><td><span class="badge badge-warn">⚠️ 部分</span></td>
+        <td>没有产品级成功指标（如"切割+合并后数据零损坏率"），只有技术性能指标。</td></tr>
+      <tr><td>输入指标 + 护栏指标 <span class="sev sev-i">🟡重要</span></td><td><span class="badge badge-miss">❌ 缺失</span></td>
+        <td>完全没有提及。对这类工具，"校验失败率=0"可以是天然的底线指标。</td></tr>
+      <tr><td>接口 / 数据契约 <span class="sev sev-b">🔴阻断</span></td><td><span class="badge badge-ok">✅ 完整</span></td>
+        <td>清单文件 JSON 结构 + 字段类型表 + 示例，数据契约写得很好。nullability 可再细化。</td></tr>
+      <tr><td>错误分类 <span class="sev sev-b">🔴阻断</span></td><td><span class="badge badge-ok">✅ 完整</span></td>
+        <td>退出码 0/1/2/130 四档清晰，区分了"系统错误""业务警告""用户中断"，每条异常有触发条件和处理方式。</td></tr>
+      <tr><td>非功能需求写成数字 <span class="sev sev-i">🟡重要</span></td><td><span class="badge badge-ok">✅ 完整</span></td>
+        <td>内存≤50MB、速度≥500MB/s、二进制≤10MB、启动≤100ms，全部是可测的数字。</td></tr>
+      <tr><td>AI / 模型 <span class="sev sev-s">🔵不适用</span></td><td><span class="badge badge-na">➖ 不适用</span></td>
+        <td>确定性文件操作，不涉及 AI/模型。</td></tr>
+      <tr><td>关键流程 / 界面五态 <span class="sev sev-s">🔵建议</span></td><td><span class="badge badge-ok">✅ 完整</span></td>
+        <td>流程图清晰，CLI 的"五态"（正常输出/错误输出/进度/极限态）都有覆盖。</td></tr>
+      <tr><td>MVP 切分 + 估算 <span class="sev sev-i">🟡重要</span></td><td><span class="badge badge-warn">⚠️ 部分</span></td>
+        <td>MVP 范围清楚但无任何工作量估算（故事点或人天），也无依赖梳理。</td></tr>
+      <tr><td>关键风险 <span class="sev sev-b">🔴阻断</span></td><td><span class="badge badge-warn">⚠️ 部分</span></td>
+        <td>风险有识别（FAT32限制、大文件耗时等）但无概率×影响、无负责人、无应对策略。</td></tr>
+      <tr><td>未决问题有归属 <span class="sev sev-b">🔴阻断</span></td><td><span class="badge badge-ok">✅ 完整</span></td>
+        <td>无阻塞性未决问题，设计决策已全部落定。</td></tr>
+      <tr><td>发布策略 + 上线验证 <span class="sev sev-s">🔵建议</span></td><td><span class="badge badge-warn">⚠️ 部分</span></td>
+        <td>verify-then-merge 流程隐含了上线验证，但无显式的发布检查清单。</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ========== 必须补齐（阻断项） ========== -->
+  <h2>必须补齐（阻断项）</h2>
+  <p class="muted">以下每条对应的维度目前为"部分"而非"完整"。它们不阻止开发从骨架起步，但在 MVP 完成前必须收紧，否则会在开发中途产生需要现场拍板的模糊地带。</p>
+  <div class="cards">
+
+    <div class="gap card-blocker">
+      <h3><span class="chip chip-b">必须补</span> 验收标准要写成可逐条勾选的判据 <span class="where">对应:§5 详细功能说明</span></h3>
+      <p class="lead">现在的处理逻辑是散文式的"1.解析参数 2.获取大小 3.流式读取..."，工程师能看懂大致流程，但缺少能逐条
+      打勾的验收判据。比如"切割完成"的判据是什么——50个分片每个恰好2GB？最后一个可以是剩余大小？清单文件必须是合法
+      JSON且包含所有必填字段？这些没有写成可测的断言。</p>
+      <div class="fix">
+        <div class="h">怎么补</div>
+        <ul>
+          <li>为每个子命令的核心场景补 3~5 条验收标准，用"给定……当……则……"的格式。例：<b>给定</b>一个100GB文件和2GB切割大小，<b>当</b>执行 split 完成，<b>则</b>生成50个分片，前49个各2147483648字节，最后一个为剩余大小，清单文件为合法JSON且包含全部字段。</li>
+          <li>异常场景已有的处理表可以直接改写成验收标准格式，它们内容已经到位，只差格式转换。</li>
+          <li>把"切割成功的判据"显式写出来：分片数量、每个分片大小规则、清单文件字段完整性。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gap card-blocker">
+      <h3><span class="chip chip-b">必须补</span> 补全边界场景的已决定行为 <span class="where">对应:§5.1.1 异常处理 + §9 质量检查</span></h3>
+      <p class="lead">异常处理表覆盖了文件不存在、磁盘不足、校验失败、中断等常见场景，这是亮点。但有几个边界场景只在第9节
+      测试要点里提了一嘴，没有在功能说明里写明行为。</p>
+      <div class="fix">
+        <div class="h">怎么补</div>
+        <ul>
+          <li><b>999分片上限</b>：§5.1.1 只在命名规则里提了"最多999个分片"，但超过时怎么处理没写——是报错退出还是自动切换到4位序号？需要明确。</li>
+          <li><b>文件名含特殊字符/空格/中文</b>：分片命名用"{原始文件名}.part001"，如果文件名含路径分隔符或特殊字符怎么办？需在命名规则里说明处理方式（如仅取文件名部分、不含目录）。</li>
+          <li><b>Windows路径含空格</b>：示例命令 <code>cutx split big file.img</code> 在Windows上可能被截断，需在帮助文档里提示引号用法。</li>
+          <li><b>源文件是符号链接</b>：跟随链接读源文件还是拒绝？需决定。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gap card-blocker">
+      <h3><span class="chip chip-b">必须补</span> 显式列出非目标 <span class="where">对应:§2 项目背景 / §8 迭代规划</span></h3>
+      <p class="lead">文档在迭代规划里暗示了 V2.0 才做压缩、加密、TUI，但没有一段显式声明"本期不做"。对一个工具型产品来说，
+      范围蔓延的风险在于"顺便也加上目录遍历""顺便也做增量同步"——非目标声明能挡住这些。</p>
+      <div class="fix">
+        <div class="h">怎么补</div>
+        <ul>
+          <li>在§2 加一段"非目标"：V1.0 不做文件压缩（分片为原始字节拷贝）、不做加密、不做目录递归（仅处理单文件）、不做增量同步、不做图形界面。</li>
+          <li>把"分片文件是原始数据的直接切分，不压缩不加密"作为设计原则写明，这关系到客户是否理解分片和原文件的总大小一致。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gap card-blocker">
+      <h3><span class="chip chip-b">必须补</span> 风险要指定负责人和应对策略 <span class="where">对应:§9 质量检查报告</span></h3>
+      <p class="lead">§9 列了四条技术风险（100GB耗时、SHA-256慢、FAT32限制、Windows换行符），但格式是"问题→建议"而非
+      "风险→概率×影响→触发条件→负责人→应对策略"。对FAT32这种已知会导致数据损坏的风险，没有负责人跟踪是不够的。</p>
+      <div class="fix">
+        <div class="h">怎么补</div>
+        <ul>
+          <li>把四条风险改成正式格式，每条标注概率（高/中/低）、影响（高/中/低）、触发条件、负责人、应对策略。</li>
+          <li>FAT32风险建议标为"概率中×影响高"，应对策略：切割前检测目标分区文件系统类型，如果是FAT32且分片大小≥4GB则输出警告并中止。</li>
+          <li>补一条"用户误操作（如分片和清单不在同一目录）"的风险，这在离线U盘传输场景下很常见。</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== 建议完善 ========== -->
+  <h2>建议完善</h2>
+  <div class="cards">
+
+    <div class="gap card-important">
+      <h3><span class="chip chip-i">建议补</span> 补一个产品级成功指标 <span class="where">对应:§2.1 / §6</span></h3>
+      <p class="lead">文档有技术性能指标（速度、内存、体积），但没有一个回答"这个工具成功了意味着什么"的指标。
+      对文件完整性工具来说，最自然的成功指标是"零数据损坏"。</p>
+      <div class="fix">
+        <div class="h">怎么补</div>
+        <ul>
+          <li>加一个核心指标：<b>切割→传输→合并全链路数据完整性</b>——合并后文件的SHA-256与原始文件一致，校验失败率 = 0。</li>
+          <li>加一个底线指标：分片校验失败时必须中止合并（不允许跳过损坏分片继续合并），这已经在设计中但应显式写为指标。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gap card-important">
+      <h3><span class="chip chip-i">建议补</span> 补工作量估算和依赖梳理 <span class="where">对应:§8 迭代规划</span></h3>
+      <p class="lead">V1.0/V1.1/V2.0 的功能切分清楚，但没有任何工作量估算。即使是新项目，也应该给出相对大小或区间。</p>
+      <div class="fix">
+        <div class="h">怎么补</div>
+        <ul>
+          <li>用 T 恤尺寸（XS~XL）标注 V1.0 各模块：split 核心逻辑（M）、merge 核心逻辑（M）、verify（S）、CLI框架（S）、进度条（S）、交叉编译脚本（XS）。</li>
+          <li>列出依赖：Go 1.21+ 工具链、Cobra 库（可 vendored 离线编译）、5个目标平台的交叉编译环境。</li>
+          <li>给一个区间而不是精确日期：如"预计2~3周，取决于是否需要断点续切"。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gap card-important">
+      <h3><span class="chip chip-i">建议补</span> 补正式用户故事 <span class="where">对应:§3.2 / §5</span></h3>
+      <p class="lead">用户画像和角色定义有了（交付工程师、客户运维、系统管理员），功能描述也隐含了用户视角，但没有
+      "作为……我希望……以便……"格式的用户故事，会让需求评审时缺少"从用户价值出发"的锚点。</p>
+      <div class="fix">
+        <div class="h">怎么补</div>
+        <ul>
+          <li>为3个核心命令各写1~2条用户故事。例：作为交付工程师，我希望指定切割大小就能把100GB文件切成2GB分片，以便逐个上传到有大小限制的客户服务器。</li>
+          <li>用户故事不替代详细功能说明，只是给每个功能一个"为什么存在"的锚。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gap card-suggest">
+      <h3><span class="chip chip-s">可优化</span> 清单文件的 nullability 语义细化 <span class="where">对应:§5.2.1</span></h3>
+      <p class="lead">清单文件格式写得很好，字段类型和说明都有。唯一可以再细的是 <code>overall_hash</code> 的 null 语义——
+      当前写的是"--no-overall-hash 时为 null"，但如果用户没加这个参数但计算失败了呢？</p>
+      <div class="fix">
+        <div class="h">怎么补</div>
+        <ul>
+          <li>明确 <code>overall_hash</code> 的三种状态：有值（计算成功）、null（用户用 --no-overall-hash 跳过）、缺失该字段（兼容旧版本清单）。合并时对 null/缺失的处理分别是"跳过整体校验"和"跳过并输出提示"。</li>
+          <li>考虑 <code>manifest_version</code> 的前向兼容策略：旧版本工具读到高版本清单时怎么处理（报错退出？尝试读取兼容字段？）。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gap card-suggest">
+      <h3><span class="chip chip-s">可优化</span> 补发布前检查清单 <span class="where">对应:§4 核心业务流程</span></h3>
+      <p class="lead">verify-then-merge 的工作流已经隐含了上线验证，但没有一个显式的"交付前检查清单"。</p>
+      <div class="fix">
+        <div class="h">怎么补</div>
+        <ul>
+          <li>在§4 补一个检查清单：切割后自校验（split 完成后自动 verify 一次）、传输后校验（客户环境 verify）、合并后整体校验。</li>
+          <li>考虑在 split 完成时自动输出一条"合并命令"提示（如"This file can be restored with: cutx merge xxx.manifest.json"），降低客户运维人员的使用门槛。</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== 逐节点评 ========== -->
+  <h2>逐节点评</h2>
+
+  <div class="card sec">
+    <h3>§2 项目背景 <span class="badge badge-ok">✅ 完整</span></h3>
+    <div class="body">
+      问题陈述清晰：谁（交付工程师）、为什么痛（客户服务器有文件大小限制、环境离线）、后果（无法传输大文件）。
+      用户画像分了三类（交付工程师、客户运维、系统管理员），各自的诉求区分度高。
+      <ul><li>可以补一句量化现状：当前一次100GB文件交付要多久（手动split+无校验+逐个上传），有了对比，工具的价值更具体。</li></ul>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <h3>§4 核心业务流程 <span class="badge badge-ok">✅ 完整</span></h3>
+    <div class="body">
+      Mermaid 流程图清晰覆盖了"切割→传输→校验→合并→整体校验"全链路，包括校验失败回到重传的分支。
+      两个典型使用场景的命令示例很实用，直接能照着跑。
+      <ul><li>场景1的"51个文件"说法建议改成"50个分片 + 1个清单文件"，避免歧义。</li></ul>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <h3>§5.1 文件切割 <span class="badge badge-warn">⚠️ 部分</span></h3>
+    <div class="body">
+      命令格式、参数表、处理逻辑、进度格式、异常处理表都写得很到位——参数的默认值、校验规则、退出码一应俱全。
+      差距是验收标准没写成可逐条勾选的格式（见"必须补"第一条），以及几个边界场景行为缺失（见"必须补"第二条）。
+      <ul><li>进度显示格式的 ETA 计算方法建议说明：是基于已用时间推算还是固定速率假设？</li></ul>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <h3>§5.2 清单文件 <span class="badge badge-ok">✅ 完整</span></h3>
+    <div class="body">
+      JSON 结构清晰，字段类型表完整，示例真实。这是这份 PRD 最扎实的部分之一——它就是 split 和 merge 之间的数据契约，
+      写得好就能保证两端独立开发不出错。
+      <ul><li>唯一可细化的是 <code>overall_hash</code> 的 null 语义（见"可优化"第一条）。</li></ul>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <h3>§5.3 文件合并 <span class="badge badge-warn">⚠️ 部分</span></h3>
+    <div class="body">
+      处理逻辑分四阶段（预检→校验→合并→后校验），逻辑严谨。异常表覆盖了清单缺失、分片缺失、大小不匹配、校验失败、
+      磁盘不足、中断等场景。
+      <ul>
+        <li>合并阶段的进度计算方式没说明——是按分片数还是按字节数？对最后一个分片（可能只有几百MB）的进度跳变要有处理。</li>
+        <li><code>--skip-verify</code> 参数建议加一个确认提示（"跳过校验可能导致数据损坏，确定继续？(y/N)"），防止误操作。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <h3>§5.4 完整性校验 <span class="badge badge-ok">✅ 完整</span></h3>
+    <div class="body">
+      作为一个独立子命令设计得合理——传输后先验证再合并，符合实际交付流程。命令和输出格式清晰。
+      <ul><li>建议补一条：verify 也检查清单文件自身的完整性（如 JSON 格式是否合法、必填字段是否齐全）。</li></ul>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <h3>§6 非功能需求 <span class="badge badge-ok">✅ 完整</span></h3>
+    <div class="body">
+      性能、安全、兼容性、离线要求全部写成可测的数字或可勾选的条目。这是很多 PRD 最敷衍的一节，这份做到了认真对待。
+      <ul>
+        <li>SHA-256 计算速度"≥300MB/s（单核）"建议注明是在什么硬件基准上（如 Apple M2 / Intel i7-12700），否则不同环境下不可比。</li>
+        <li>兼容性表里提到"FAT32单文件4GB限制"，但切割分片默认2GB，恰好不触发——不过用户如果设4G就会触发，建议在帮助文档里加提示。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <h3>§7 技术方案 <span class="badge badge-ok">✅ 完整</span></h3>
+    <div class="body">
+      选型有理有据（Go→静态编译、Cobra→CLI成熟、SHA-256→安全+硬件加速），交叉编译目标表覆盖了5个平台，
+      核心算法用伪代码展示了流式切割和合并的逻辑。
+      <ul><li>伪代码里合并算法的"边写边校验"策略值得肯定——不是先全部校验完再合并，而是在写入的同时计算hash，校验失败时已写入部分需处理（是删除输出文件还是保留？建议明确）。</li></ul>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <h3>§8 迭代规划 <span class="badge badge-warn">⚠️ 部分</span></h3>
+    <div class="body">
+      V1.0/V1.1/V2.0 三段切分清晰，MVP 范围合理（核心功能+校验+进度，不含断点续传和高级功能）。
+      但无工作量估算、无依赖梳理（见"建议补"第二条）。
+      <ul><li>V1.1 的"断点续切"和"断点续合并"对100GB级别文件是刚需——如果一次切割要12分钟，中断后重来很痛。建议评估是否提到 V1.0。</li></ul>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <h3>§9 质量检查报告 <span class="badge badge-warn">⚠️ 部分</span></h3>
+    <div class="body">
+      四角色审查（技术/用户/运营/测试）的思路对，内容也有料——FAT32限制、Windows换行符、空文件切割等都是真实问题。
+      但风险格式不够正式（见"必须补"第四条），测试要点的预期结果可以更具体。
+      <ul><li>测试要点第8条"999个分片上限"只写了"超过时输出错误提示"，但没说超过后是否允许继续（如自动切4位序号还是硬中止）。</li></ul>
+    </div>
+  </div>
+
+  <!-- ========== 亮点 ========== -->
+  <h2>做得好的部分</h2>
+  <div class="good">
+    <ul>
+      <li><b>命令行接口设计专业。</b>每个子命令有参数表（含类型、默认值、校验规则），分片命名规则有定义，退出码有四档规范（0/1/2/130）。拿到这份文档，工程师可以直接开始写 CLI 框架和参数解析，不需要猜测。</li>
+      <li><b>异常处理表是整份文档的亮点。</b>每个子命令都有独立的异常处理表，覆盖了文件不存在、磁盘不足、校验失败、中断等真实场景，每条都有触发条件和处理方式+退出码。很多 PRD 在这一节只写"妥善处理异常"，这份做到了逐条决定行为。</li>
+      <li><b>清单文件格式作为数据契约写得扎实。</b>JSON 结构 + 字段类型表 + 示例 + 版本号，它让 split 和 merge 可以独立开发、独立测试，是工程上最关键的一份契约。</li>
+      <li><b>非功能需求全部落成数字。</b>内存≤50MB、速度≥500MB/s、二进制≤10MB——不是"要快""要轻量"，是可测的。</li>
+      <li><b>技术选型有理有据。</b>选 Go 不是因为流行，是因为静态编译单一二进制+交叉编译原生支持，直接对齐了"离线+跨平台"的核心约束。</li>
+    </ul>
+    <p class="muted" style="margin:8px 0 0">缺的主要是"PM 职责"那一层——非目标声明、正式验收标准、风险负责人、成功指标——而不是"工程理解"那一层。
+    这说明写文档的人有很强的工程背景，补上产品管理的几个习惯后，这份 PRD 会非常扎实。</p>
+  </div>
+
+  <!-- ========== 下一步 ========== -->
+  <h2>下一步（按优先级）</h2>
+  <ol class="steps">
+    <li><b>把异常处理表改写成正式验收标准</b>：用"给定……当……则……"格式重写每个子命令的核心场景和异常场景。内容已经到位，只差格式转换。
+      <span class="owner">建议负责人：产品，1~2 天内</span></li>
+    <li><b>补全边界场景的已决定行为</b>：999分片上限、文件名特殊字符、Windows路径空格、符号链接——每个写明处理方式和退出码。
+      <span class="owner">负责人：产品 + 工程，同步进行</span></li>
+    <li><b>加一段显式非目标声明</b>：V1.0 不做压缩、加密、目录递归、图形界面。
+      <span class="owner">负责人：产品，半天内</span></li>
+    <li><b>把§9的风险改成正式风险登记格式</b>：概率×影响、触发条件、负责人、应对策略。
+      <span class="owner">负责人：产品，1 天内</span></li>
+    <li><b>补一个产品级成功指标</b>："切割→合并全链路数据完整性，校验失败率=0"。
+      <span class="owner">负责人：产品</span></li>
+    <li><b>补T恤尺寸的工作量估算和依赖清单</b>，评估断点续切是否需要提到 V1.0。
+      <span class="owner">负责人：工程，2 天内</span></li>
+    <li><b>完成以上 1~4 项后复审</b>——预计可以到"可交付开发"。
+      <span class="owner">负责人：产品</span></li>
+  </ol>
+
+  <footer>
+    本报告对照技术产品经理的标准做法，对文档逐项评估而成。完成度是一个指示性数值，衡量的是"作为一份 PRD 的完整度"，
+    不代表功能工作量；能否交付开发，以是否还有"必须补"的阻断项为准。本报告为单文件 HTML，可离线打开、可打印。
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+# Binaries
+cutx
+dist/
+
+# Test artifacts
+*.part*
+*.manifest.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Go
+vendor/
+
+# Build artifacts
+winui/CutX.GUI/obj/
+winui/CutX.GUI/bin/
+*.pyc
+
+# Skill dependencies
+.agents/

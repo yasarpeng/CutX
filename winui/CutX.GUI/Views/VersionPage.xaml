@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- VersionPage — 版本信息界面 -->
+<Page
+    x:Class="CutX.GUI.Views.VersionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource BgBrush}">
+
+    <StackPanel Orientation="Vertical" Spacing="16" Margin="0,0,0,24">
+
+        <TextBlock Text="版本 Version" Style="{StaticResource SectionHeadingStyle}" />
+
+        <Border Style="{StaticResource CardStyle}">
+            <StackPanel Spacing="12">
+                <!-- Logo + version -->
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Border Width="36" Height="36" CornerRadius="8"
+                            Background="{StaticResource AccentBrush}">
+                        <TextBlock Text="C" FontSize="20" FontWeight="Bold"
+                                   Foreground="#1E1E1E"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="CutX" FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock Text="跨平台离线文件切割与合并工具" FontSize="13"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Version info -->
+                <StackPanel Spacing="6" Margin="0,8,0,0">
+                    <TextBlock Style="{StaticResource MonoTextStyle}"
+                               Foreground="{StaticResource TextSecondaryBrush}">
+                       <Run Text="cutx v1.0.0" />
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource MonoTextStyle}"
+                               Foreground="{StaticResource TextSecondaryBrush}">
+                       <Run Text="GUI:  WinUI 3 + Windows App SDK" />
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource MonoTextStyle}"
+                               Foreground="{StaticResource TextSecondaryBrush}">
+                       <Run Text="Core: Go 1.26 / CGO_ENABLED=0" />
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource MonoTextStyle}"
+                               Foreground="{StaticResource TextSecondaryBrush}">
+                       <Run Text="Hash: MD5 (默认) / SHA-256" />
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Quick reference -->
+        <Border Style="{StaticResource CardStyle}">
+            <StackPanel Spacing="10">
+                <TextBlock Text="快速参考" FontSize="15" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" />
+                <TextBlock Style="{StaticResource MonoTextStyle}"
+                           Foreground="{StaticResource TextSecondaryBrush}">
+                   <Run Text="cutx split &lt;file&gt; -s 2G" />
+                </TextBlock>
+                <TextBlock Style="{StaticResource MonoTextStyle}"
+                           Foreground="{StaticResource TextSecondaryBrush}">
+                   <Run Text="cutx merge &lt;manifest&gt; --mode verify" />
+                </TextBlock>
+                <TextBlock Style="{StaticResource MonoTextStyle}"
+                           Foreground="{StaticResource TextSecondaryBrush}">
+                   <Run Text="cutx verify &lt;manifest&gt;" />
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</Page>
