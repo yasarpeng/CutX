@@ -57,4 +57,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: CutX.GUI-windows-x64
-          path: winui/CutX.GUI/bin/Release/*/win-x64/CutX.GUI.exe
+          path: winui/CutX.GUI/bin/
