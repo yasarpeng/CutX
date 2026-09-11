@@ -1,28 +1,23 @@
-# Binaries
-cutx
+# Build output
 dist/
-
-# Test artifacts
-*.part*
-*.manifest.json
-
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+cutx
+cutx-gui.exe
+*.exe
 
 # Go
 vendor/
 
-# Build artifacts
-winui/CutX.GUI/obj/
+# WinUI / .NET
 winui/CutX.GUI/bin/
-*.pyc
+winui/CutX.GUI/obj/
+winui/build-log.txt
+winui/build-full-log.txt
 
-# Skill dependencies
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.user
 .agents/

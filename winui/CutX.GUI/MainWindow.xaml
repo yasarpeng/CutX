@@ -123,7 +123,7 @@
         </Grid>
 
         <!-- ═══ ROW 3: Log panel (collapsible) ═══ -->
-        <Expander x:Name="LogExpander"
+        <muxc:Expander x:Name="LogExpander"
                   Grid.Row="3"
                   Header="日志"
                   IsExpanded="True"
@@ -170,13 +170,13 @@
                 <!-- Log list -->
                 <ListView x:Name="LogListView"
                           Grid.Row="1"
-                          Background="{StaticResource CardColor}"
+                          Background="{StaticResource CardBrush}"
                           Padding="8,4"
                           SelectionMode="None"
                           IsItemClickEnabled="False"
                           ItemTemplate="{StaticResource LogEntryTemplate}" />
             </Grid>
-        </Expander>
+        </muxc:Expander>
     </Grid>
 
 </Window>

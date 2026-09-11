@@ -1,94 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  CutX Dark Theme — VS Code Dark+ × Linear × Fluent Design
-  
-  Color philosophy:
-    Background  #1E1E1E  — deepest layer (window base, behind Mica)
-    Panel       #252526  — structural panels (navigation bar, side strips)
-    Card        #2D2D30  — content cards, input containers, log surface
-    CardHover   #323234  — pointer-over state for cards and list items
-    Accent      #4EC9B0  — primary action, progress, success (VS Code teal-green)
-    AccentHover #5FD4BC  — accent on hover (6% lighter)
-    AccentPress #45B89F  — accent on press (5% darker)
-    TextPrimary #E0E0E0  — body text, headings
-    TextSecondary #9E9E9E — captions, helper text, metadata
-    TextMuted   #6E6E6E  — placeholder, disabled text
-    Success     #4EC9B0  — same as accent
-    Warning     #DCDCAA  — VS Code warning yellow
-    Error       #F44747  — VS Code error red
-    Info        #569CD6  — VS Code blue (log "info" level)
-    
-  WCAG AA contrast ratios (on #1E1E1E):
-    #E0E0E0 vs #1E1E1E = 12.9:1 ✅
-    #9E9E9E vs #1E1E1E = 6.3:1  ✅
-    #4EC9B0 vs #1E1E1E = 6.8:1 ✅
-    #DCDCAA vs #1E1E1E = 9.1:1 ✅
-    #F44747 vs #1E1E1E = 4.6:1 ✅ (large text / status icons)
-    #569CD6 vs #1E1E1E = 5.2:1 ✅
--->
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- ═══════════════════════════════════════════════════
-         COLOR RESOURCES — raw color tokens
-         ═══════════════════════════════════════════════════ -->
-
+    <!-- Colors -->
     <Color x:Key="BgColor">          #1E1E1E</Color>
     <Color x:Key="PanelColor">      #252526</Color>
     <Color x:Key="CardColor">       #2D2D30</Color>
     <Color x:Key="CardHoverColor">  #323234</Color>
     <Color x:Key="StrokeColor">     #3E3E42</Color>
     <Color x:Key="StrokeBrightColor">#4E4E52</Color>
-
     <Color x:Key="AccentColor">     #4EC9B0</Color>
     <Color x:Key="AccentHoverColor">#5FD4BC</Color>
     <Color x:Key="AccentPressColor">#45B89F</Color>
     <Color x:Key="AccentDimColor">  #2A3F3A</Color>
-
     <Color x:Key="TextPrimaryColor">  #E0E0E0</Color>
     <Color x:Key="TextSecondaryColor">#9E9E9E</Color>
     <Color x:Key="TextMutedColor">    #6E6E6E</Color>
-
     <Color x:Key="SuccessColor">#4EC9B0</Color>
     <Color x:Key="WarningColor">#DCDCAA</Color>
     <Color x:Key="ErrorColor">  #F44747</Color>
     <Color x:Key="InfoColor">   #569CD6</Color>
 
-    <!-- ═══════════════════════════════════════════════════
-         BRUSH RESOURCES — semantic brushes by purpose
-         ═══════════════════════════════════════════════════ -->
-
-    <!-- Surfaces -->
+    <!-- Brushes -->
     <SolidColorBrush x:Key="BgBrush"           Color="{StaticResource BgColor}" />
     <SolidColorBrush x:Key="PanelBrush"        Color="{StaticResource PanelColor}" />
     <SolidColorBrush x:Key="CardBrush"         Color="{StaticResource CardColor}" />
     <SolidColorBrush x:Key="CardHoverBrush"    Color="{StaticResource CardHoverColor}" />
     <SolidColorBrush x:Key="StrokeBrush"       Color="{StaticResource StrokeColor}" />
     <SolidColorBrush x:Key="StrokeBrightBrush"  Color="{StaticResource StrokeBrightColor}" />
-
-    <!-- Accent -->
     <SolidColorBrush x:Key="AccentBrush"       Color="{StaticResource AccentColor}" />
     <SolidColorBrush x:Key="AccentHoverBrush"   Color="{StaticResource AccentHoverColor}" />
     <SolidColorBrush x:Key="AccentPressBrush"  Color="{StaticResource AccentPressColor}" />
     <SolidColorBrush x:Key="AccentDimBrush"     Color="{StaticResource AccentDimColor}" />
-
-    <!-- Text -->
     <SolidColorBrush x:Key="TextPrimaryBrush"   Color="{StaticResource TextPrimaryColor}" />
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
     <SolidColorBrush x:Key="TextMutedBrush"      Color="{StaticResource TextMutedColor}" />
-
-    <!-- Status -->
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
     <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
     <SolidColorBrush x:Key="ErrorBrush"   Color="{StaticResource ErrorColor}" />
     <SolidColorBrush x:Key="InfoBrush"     Color="{StaticResource InfoColor}" />
 
-    <!-- ═══════════════════════════════════════════════════
-         STYLES — control-level overrides
-         ═══════════════════════════════════════════════════ -->
-
-    <!-- Accent Button — primary CTA (开始切割/合并/校验) -->
+    <!-- Styles (simplified — no custom ControlTemplate) -->
     <Style x:Key="AccentButtonStyle"
            TargetType="Button"
            BasedOn="{StaticResource DefaultButtonStyle}">
@@ -100,58 +53,8 @@
         <Setter Property="Padding"          Value="24,8" />
         <Setter Property="FontWeight"      Value="SemiBold" />
         <Setter Property="FontSize"         Value="14" />
-        <Setter Property="Template">
-            <ControlTemplate TargetType="Button">
-                <Grid>
-                    <Border x:Name="BgBorder"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="6"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            BorderBrush="{TemplateBinding BorderBrush}">
-                        <ContentPresenter
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Content="{TemplateBinding Content}"
-                            TextElement.Foreground="{TemplateBinding Foreground}"/>
-                    </Border>
-                    <VisualStateManager.VisualStateGroups>
-                        <VisualStateGroup x:Name="CommonStates">
-                            <VisualState x:Name="Normal">
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetName="BgBorder"
-                                                     Storyboard.TargetProperty="Opacity"
-                                                     To="1.0" Duration="0:0:0.15" />
-                                </Storyboard>
-                            </VisualState>
-                            <VisualState x:Name="PointerOver">
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetName="BgBorder"
-                                                     Storyboard.TargetProperty="Opacity"
-                                                     To="0.88" Duration="0:0:0.15" />
-                                </Storyboard>
-                            </VisualState>
-                            <VisualState x:Name="Pressed">
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetName="BgBorder"
-                                                     Storyboard.TargetProperty="Opacity"
-                                                     To="0.75" Duration="0:0:0.08" />
-                                </Storyboard>
-                            </VisualState>
-                            <VisualState x:Name="Disabled">
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetName="BgBorder"
-                                                     Storyboard.TargetProperty="Opacity"
-                                                     To="0.35" Duration="0:0:0.1" />
-                                </Storyboard>
-                            </VisualState>
-                        </VisualStateGroup>
-                    </VisualStateManager.VisualStateGroups>
-                </Grid>
-            </ControlTemplate>
-        </Setter>
     </Style>
 
-    <!-- Secondary Button — browse, export, clear -->
     <Style x:Key="SecondaryButtonStyle"
            TargetType="Button"
            BasedOn="{StaticResource DefaultButtonStyle}">
@@ -165,9 +68,7 @@
         <Setter Property="FontSize"        Value="13" />
     </Style>
 
-    <!-- Card — content container for form sections -->
-    <Style x:Key="CardStyle"
-           TargetType="Border">
+    <Style x:Key="CardStyle" TargetType="Border">
         <Setter Property="Background"   Value="{StaticResource CardBrush}" />
         <Setter Property="BorderBrush"  Value="{StaticResource StrokeBrush}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -175,9 +76,7 @@
         <Setter Property="Padding"      Value="20,16" />
     </Style>
 
-    <!-- Drop Zone — file drag-and-drop area -->
-    <Style x:Key="DropZoneStyle"
-           TargetType="Border">
+    <Style x:Key="DropZoneStyle" TargetType="Border">
         <Setter Property="Background"    Value="#1F1F22" />
         <Setter Property="BorderBrush"   Value="{StaticResource StrokeBrush}" />
         <Setter Property="BorderThickness" Value="2" />
@@ -185,26 +84,20 @@
         <Setter Property="Padding"       Value="24,32" />
     </Style>
 
-    <!-- Section heading -->
-    <Style x:Key="SectionHeadingStyle"
-           TargetType="TextBlock">
+    <Style x:Key="SectionHeadingStyle" TargetType="TextBlock">
         <Setter Property="FontSize"   Value="18" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
     </Style>
 
-    <!-- Field label -->
-    <Style x:Key="FieldLabelStyle"
-           TargetType="TextBlock">
+    <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize"   Value="13" />
         <Setter Property="FontWeight" Value="Medium" />
         <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
     </Style>
 
-    <!-- Monospace — log entries, code paths -->
-    <Style x:Key="MonoTextStyle"
-           TargetType="TextBlock">
-        <Setter Property="FontFamily">Cascadia Mono, Consolas, "Courier New", monospace</Setter>
+    <Style x:Key="MonoTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily">Cascadia Mono, Consolas, Courier New, monospace</Setter>
         <Setter Property="FontSize"   Value="12" />
         <Setter Property="LineHeight" Value="20" />
     </Style>

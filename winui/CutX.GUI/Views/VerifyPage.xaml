@@ -4,6 +4,7 @@
     x:Class="CutX.GUI.Views.VerifyPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     Background="{StaticResource BgBrush}">
 
     <ScrollViewer Padding="0" Margin="0">
@@ -21,7 +22,7 @@
                         Drop="VerifyDrop_Drop"
                         Tapped="VerifyDrop_Tapped">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <FontIcon Glyph="&#xE73E;" FontSize="28"
+                        <muxc:FontIcon Glyph="&#xE73E;" FontSize="28"
                                   Foreground="{StaticResource TextMutedBrush}" />
                         <TextBlock Text="拖拽 .manifest.json 文件到此处"
                                    FontSize="14" FontWeight="Medium"
@@ -43,7 +44,7 @@
                     CornerRadius="6"
                     Padding="16,10">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE946;" FontSize="14"
+                    <muxc:FontIcon Glyph="&#xE946;" FontSize="14"
                               Foreground="{StaticResource InfoBrush}"
                               VerticalAlignment="Center" />
                     <TextBlock Text="校验不执行合并，仅验证所有分片的完整性。快速排查传输过程中损坏的分片。"
