@@ -30,14 +30,12 @@ jobs:
           path: dist/${{ matrix.target.output }}
 
   build-gui:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Add Windows SDK workload
-        run: dotnet workload install maui-windows
       - name: Build CutX.GUI
         run: |
           cd winui
