@@ -33,21 +33,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Publish self-contained single-file GUI
+      - name: Publish self-contained GUI
         run: |
           cd winui
           dotnet publish CutX.GUI/CutX.GUI.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64 -p:EnableWindowsTargeting=true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
-      - name: Package GUI
+      - name: List published files
         run: |
-          cd winui/publish
-          Compress-Archive -Path CutX.GUI.exe -DestinationPath ../../CutX.GUI-windows-x64.zip
-      - name: Upload GUI zip
+          Get-ChildItem winui/publish -Recurse | Select-Object Name, Length
+      - name: Upload GUI (all files)
         uses: actions/upload-artifact@v4
         with:
           name: CutX.GUI-windows-x64
-          path: winui/CutX.GUI-windows-x64.zip
+          path: winui/publish/
