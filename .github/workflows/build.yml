@@ -36,23 +36,17 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Remove .NET 10 SDK (force .NET 8)
-        run: |
-          $sdk10Dir = "C:\Program Files\dotnet\sdk\10.0.400"
-          if (Test-Path $sdk10Dir) {
-            Remove-Item -Recurse -Force $sdk10Dir
-            Write-Host "Removed .NET 10 SDK"
-          }
-          dotnet --list-sdks
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Verify SDK version
-        run: dotnet --list-sdks
+      - name: Verify SDK (global.json pins to 8.0)
+        run: |
+          cd winui
+          dotnet --list-sdks
       - name: Build CutX.GUI
         run: |
           cd winui
-          dotnet build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64
+          dotnet build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 -v:detailed
       - name: Upload GUI exe on success
         if: success()
         uses: actions/upload-artifact@v4
