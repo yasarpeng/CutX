@@ -12,8 +12,7 @@
 
 <p align="center">
   <a href="#简介">中文</a> ·
-  <a href="#overview">English</a> ·
-  <a href="docs/PRD.md">PRD</a>
+  <a href="#overview">English</a>
 </p>
 
 <p align="center">
