@@ -7,7 +7,6 @@ on:
     branches: [ master, main ]
 
 jobs:
-  # ─── Build Go CLI (all platforms) ───
   build-cli:
     runs-on: ubuntu-latest
     strategy:
@@ -33,24 +32,39 @@ jobs:
           name: ${{ matrix.target.output }}
           path: dist/${{ matrix.target.output }}
 
-  # ─── Build WinUI 3 GUI (Windows only) ───
   build-gui:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '8.0.x'
       - name: Build CutX.GUI
         run: |
           cd winui
-          dotnet build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64
-      - name: Find output
-        id: find
+          dotnet build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 -bl
+      - name: Show XamlCompiler output if build fails
+        if: failure()
         run: |
-          $exe = Get-ChildItem winui/CutX.GUI/bin/Release/*/win-x64/CutX.GUI.exe -Recurse | Select-Object -First 1
-          echo "exe_path=$($exe.FullName)" >> $env:GITHUB_OUTPUT
-      - uses: actions/upload-artifact@v4
+          $outputJson = Get-ChildItem winui/CutX.GUI/obj -Recurse -Filter "output.json" | Select-Object -First 1
+          if ($outputJson) {
+            Write-Host "=== output.json ==="
+            Get-Content $outputJson.FullName
+          }
+          $inputJson = Get-ChildItem winui/CutX.GUI/obj -Recurse -Filter "input.json" | Select-Object -First 1
+          if ($inputJson) {
+            Write-Host "=== input.json ==="
+            Get-Content $inputJson.FullName
+          }
+      - name: Upload binlog on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-binlog
+          path: winui/msbuild.binlog
+      - name: Upload GUI exe on success
+        if: success()
+        uses: actions/upload-artifact@v4
         with:
           name: CutX.GUI-windows-x64
-          path: ${{ steps.find.outputs.exe_path }}
+          path: winui/CutX.GUI/bin/Release/*/win-x64/CutX.GUI.exe
