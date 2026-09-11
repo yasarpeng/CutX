@@ -21,3 +21,5 @@ winui/build-full-log.txt
 .vscode/
 *.user
 .agents/
+*.syso.bak
+build-assets/*.syso.bak
