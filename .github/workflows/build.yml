@@ -59,4 +59,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: CutX-windows-amd64.exe
-          path: gui/bin/CutX.exe
+          path: gui/build/bin/CutX.exe
