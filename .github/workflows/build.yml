@@ -36,67 +36,16 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Build CutX.GUI with manual XamlCompiler capture
-        shell: pwsh
+      - name: Build CutX.GUI
         run: |
           cd winui
-          # First do a restore to get NuGet packages
-          dotnet restore CutX.GUI.csproj -p:EnableWindowsTargeting=true -p:Platform=x64
-          
-          # Now build — capture everything
-          $psi = New-Object System.Diagnostics.ProcessStartInfo
-          $psi.FileName = "dotnet"
-          $psi.Arguments = "build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 -v:detailed"
-          $psi.UseShellExecute = $false
-          $psi.RedirectStandardOutput = $true
-          $psi.RedirectStandardError = $true
-          $psi.StandardOutputEncoding = [System.Text.Encoding]::UTF8
-          $psi.StandardErrorEncoding = [System.Text.Encoding]::UTF8
-          
-          $proc = New-Object System.Diagnostics.Process
-          $proc.StartInfo = $psi
-          
-          $stdoutBuilder = New-Object System.Text.StringBuilder
-          $stderrBuilder = New-Object System.Text.StringBuilder
-          
-          $stdoutAction = {
-            if (-not $EventArgs.Data) { return }
-            Write-Host $EventArgs.Data
-            [void]$stdoutBuilder.Append($EventArgs.Data + "`n")
-          }
-          $stderrAction = {
-            if (-not $EventArgs.Data) { return }
-            Write-Host "[STDERR] $EventArgs.Data"
-            [void]$stderrBuilder.Append($EventArgs.Data + "`n")
-          }
-          
-          $stdoutEvent = Register-ObjectEvent -InputObject $proc -EventName "OutputDataReceived" -Action $stdoutAction
-          $stderrEvent = Register-ObjectEvent -InputObject $proc -EventName "ErrorDataReceived" -Action $stderrAction
-          
-          $proc.Start() | Out-Null
-          $proc.BeginOutputReadLine()
-          $proc.BeginErrorReadLine()
-          $proc.WaitForExit()
-          
-          Write-Host "`n=== EXIT CODE: $($proc.ExitCode) ==="
-          
-          # Save full logs
-          $stdoutBuilder.ToString() | Out-File -FilePath ../stdout.txt -Encoding utf8
-          $stderrBuilder.ToString() | Out-File -FilePath ../stderr.txt -Encoding utf8
-          
-          Unregister-Event -SourceIdentifier $stdoutEvent.Name
-          Unregister-Event -SourceIdentifier $stderrEvent.Name
-          
-          exit $proc.ExitCode
-      - name: Upload logs on failure
+          dotnet build CutX.GUI/CutX.GUI.csproj -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 -v:detailed
+      - name: Upload obj on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: build-logs
-          path: |
-            stdout.txt
-            stderr.txt
-            winui/CutX.GUI/obj/
+          name: build-obj
+          path: winui/CutX.GUI/obj/
       - name: Upload GUI exe on success
         if: success()
         uses: actions/upload-artifact@v4
