@@ -23,3 +23,14 @@ winui/build-full-log.txt
 .agents/
 *.syso.bak
 build-assets/*.syso.bak
+
+# Wails GUI
+gui/frontend/node_modules/
+gui/frontend/dist/
+gui/build/
+gui/bin/
+gui/windows/
+gui/darwin/
+gui/universal/
+gui/extra/
+gui/.wails/

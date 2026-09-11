@@ -5,6 +5,7 @@ on:
     branches: [ master, main ]
 
 jobs:
+  # CLI builds (macOS + Linux, cross-compile, no CGO)
   build-cli:
     runs-on: ubuntu-latest
     strategy:
@@ -28,6 +29,7 @@ jobs:
           name: ${{ matrix.target.output }}
           path: dist/${{ matrix.target.output }}
 
+  # Windows GUI build (Wails + Vue3)
   build-windows:
     runs-on: windows-latest
     steps:
@@ -35,13 +37,26 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.24'
-      - name: Build Windows GUI (Walk + CGO)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - name: Build frontend
         run: |
-          $env:CGO_ENABLED = 1
-          $env:GOOS = "windows"
-          $env:GOARCH = "amd64"
-          go build -ldflags "-s -w -H windowsgui" -o dist/cutx-windows-amd64.exe .
+          cd gui/frontend
+          npm install
+          npm run build
+      - name: Generate Wails bindings
+        run: |
+          cd gui
+          wails generate module
+      - name: Build Windows GUI
+        run: |
+          cd gui
+          $env:CGO_ENABLED = "1"
+          wails build -platform windows/amd64 -nsis false
       - uses: actions/upload-artifact@v4
         with:
-          name: cutx-windows-amd64.exe
-          path: dist/cutx-windows-amd64.exe
+          name: CutX-windows-amd64.exe
+          path: gui/bin/CutX.exe

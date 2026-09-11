@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark theme (default) */
+  --bg-base: #1a1a1a;
+  --bg-panel: #222226;
+  --bg-card: #2a2a2e;
+  --bg-hover: #333338;
+  --color-border: #3a3a3e;
+  --color-accent: #5eead4;
+  --color-accent-hover: #2dd4bf;
+  --color-accent-dim: rgba(94, 234, 212, 0.12);
+  --color-text: #e8e8e8;
+  --color-text-muted: #9ca3af;
+  --color-success: #5eead4;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
+}
+
+html:not(.dark) {
+  --bg-base: #fafafa;
+  --bg-panel: #f3f4f6;
+  --bg-card: #ffffff;
+  --bg-hover: #f0f0f0;
+  --color-border: #e5e7eb;
+  --color-accent: #0d9488;
+  --color-accent-hover: #0f766e;
+  --color-accent-dim: rgba(13, 148, 136, 0.08);
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b7280;
+  --color-success: #0d9488;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--color-text);
+  font-family: "Microsoft YaHei", "Source Han Sans SC", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+/* Title bar drag region */
+.titlebar-drag { -webkit-app-region: drag; }
+.no-drag { -webkit-app-region: no-drag; }
+
+/* Card */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* Drop zone */
+.drop-zone {
+  border: 2px dashed var(--color-border);
+  border-radius: 10px;
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg-base);
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--bg-base);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%;
+}
+.btn-primary:hover { background: var(--color-accent-hover); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Progress bar */
+.progress-track {
+  height: 8px;
+  background: var(--bg-base);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Inputs */
+input, select {
+  background: var(--bg-base);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--color-text);
+  font-size: 14px;
+  width: 100%;
+  border-color: transparent;
+  font-family: inherit;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
