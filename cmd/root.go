@@ -7,6 +7,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	version   = "v1.0.0"
+	commit    = "dev"
+	buildDate = "unknown"
+)
+
 var rootCmd = &cobra.Command{
 	Use:   "cutx",
 	Short: "CutX - Cross-platform offline file splitter & merger",
@@ -22,6 +28,11 @@ func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
+}
+
+// RunInteractive starts the interactive menu mode (macOS/Linux).
+func RunInteractive() {
+	runInteractive()
 }
 
 // exitOnError prints error and exits with code 1.

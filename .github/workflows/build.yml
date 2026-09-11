@@ -5,7 +5,7 @@ on:
     branches: [ master, main ]
 
 jobs:
-  build-cli:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,38 +20,12 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.24'
-      - name: Build
+      - name: Build ${{ matrix.target.output }}
         run: |
           CGO_ENABLED=0 GOOS=${{ matrix.target.goos }} GOARCH=${{ matrix.target.goarch }} \
-          go build -ldflags "-s -w" -o dist/${{ matrix.target.output }} .
+          go build -ldflags "-s -w -H windowsgui" \
+          -o dist/${{ matrix.target.output }} .
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target.output }}
           path: dist/${{ matrix.target.output }}
-
-  build-gui:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-      - name: Publish self-contained GUI
-        run: |
-          cd winui
-          dotnet publish CutX.GUI/CutX.GUI.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64 -p:EnableWindowsTargeting=true -p:WindowsAppSDKSelfContained=true -o publish
-      - name: List published files
-        run: |
-          Write-Host "=== Published files ==="
-          Get-ChildItem winui\publish -Recurse -File | Select-Object Name, @{N='SizeKB';E={[math]::Round($_.Length/1024,1)}} | Format-Table -AutoSize
-      - name: Create portable zip
-        run: |
-          Compress-Archive -Path winui\publish\* -DestinationPath CutX.GUI-portable.zip -CompressionLevel Optimal
-          Write-Host "Zip size: $((Get-Item CutX.GUI-portable.zip).Length / 1MB) MB"
-      - name: Upload portable zip
-        uses: actions/upload-artifact@v4
-        with:
-          name: CutX.GUI-portable
-          path: CutX.GUI-portable.zip
