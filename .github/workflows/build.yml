@@ -36,34 +36,23 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Setup .NET 6 (for XamlCompiler interop)
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '6.0.x'
-      - name: Enable Developer Mode
-        run: |
-          $key = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
-          if (-not (Test-Path $key)) { New-Item -Path $key -Force }
-          Set-ItemProperty -Path $key -Name "AllowDevelopmentWithoutDevLicense" -Value 1 -Type DWord
       - name: Build CutX.GUI
         run: |
           cd winui
-          dotnet build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64
-      - name: Upload GUI exe
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: CutX.GUI-windows-x64
-          path: winui/CutX.GUI/bin/Release/*/win-x64/CutX.GUI.exe
-      - name: Upload build log on failure
+          dotnet build CutX.GUI -c Release -p:EnableWindowsTargeting=true -p:Platform=x64 -v:detailed
+      - name: Upload build artifacts on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: build-output
           path: |
             winui/CutX.GUI/obj/
-            winui/msbuild.binlog
+      - name: Upload GUI exe on success
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CutX.GUI-windows-x64
+          path: winui/CutX.GUI/bin/Release/*/win-x64/CutX.GUI.exe
