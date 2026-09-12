@@ -2,10 +2,8 @@ package main
 
 import (
 	"os"
-	"runtime"
 
 	"github.com/pengyongshi/cutx/cmd"
-	"github.com/pengyongshi/cutx/internal/gui"
 )
 
 var (
@@ -15,12 +13,8 @@ var (
 
 func main() {
 	if len(os.Args) == 1 {
-		if runtime.GOOS == "windows" {
-			// Windows: launch native GUI window (like PuTTY)
-			gui.Run(version)
-			return
-		}
-		// macOS/Linux: interactive CLI menu
+		// No arguments: launch interactive CLI menu
+		// (Windows users should use the Wails GUI build: CutX.exe from gui/)
 		cmd.RunInteractive()
 		return
 	}

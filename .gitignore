@@ -1,17 +1,16 @@
 # Build output
 dist/
 cutx
-cutx-gui.exe
 *.exe
 
 # Go
 vendor/
 
-# WinUI / .NET
-winui/CutX.GUI/bin/
-winui/CutX.GUI/obj/
-winui/build-log.txt
-winui/build-full-log.txt
+# Wails GUI
+gui/frontend/node_modules/
+gui/frontend/dist/
+gui/bin/
+gui/.wails/
 
 # macOS
 .DS_Store
@@ -20,16 +19,6 @@ winui/build-full-log.txt
 .idea/
 .vscode/
 *.user
-.agents/
-*.syso.bak
-build-assets/*.syso.bak
 
-# Wails GUI
-gui/frontend/node_modules/
-gui/frontend/dist/
-gui/bin/
-gui/windows/
-gui/darwin/
-gui/universal/
-gui/extra/
-gui/.wails/
+# Misc
+*.syso.bak
