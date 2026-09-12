@@ -16,6 +16,5 @@
     "copyright": "MIT",
     "comments": "Cross-platform offline file splitter & merger"
   },
-  "wailsjsdir": "./frontend/src/wailsjs",
-  "icon": "build/icon.ico"
+  "wailsjsdir": "./frontend/src/wailsjs"
 }

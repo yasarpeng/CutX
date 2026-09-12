@@ -15,14 +15,14 @@ func main() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:         "CutX",
-		Width:         800,
-		Height:        720,
-		MinWidth:      720,
-		MinHeight:     640,
-		DisableResize: false,
-		Fullscreen:    false,
-		Frameless:     true,
+		Title:            "CutX",
+		Width:            800,
+		Height:           720,
+		MinWidth:         720,
+		MinHeight:        640,
+		DisableResize:    false,
+		Fullscreen:       false,
+		Frameless:        true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -33,7 +33,7 @@ func main() {
 			app,
 		},
 		DragAndDrop: &options.DragAndDrop{
-			EnableFileDrop:      true,
+			EnableFileDrop:     true,
 			DisableWebViewDrop: true,
 		},
 	})
