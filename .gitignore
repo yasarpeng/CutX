@@ -22,3 +22,5 @@ gui/.wails/
 
 # Misc
 *.syso.bak
+.agents/
+winui/
