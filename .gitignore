@@ -27,7 +27,6 @@ build-assets/*.syso.bak
 # Wails GUI
 gui/frontend/node_modules/
 gui/frontend/dist/
-gui/build/
 gui/bin/
 gui/windows/
 gui/darwin/
