@@ -5,7 +5,8 @@ import { ref, reactive, onMounted, computed, watch } from 'vue'
 const version = ref('')
 const operation = ref<'split' | 'merge' | 'verify'>('split')
 const filePath = ref('')
-const chunkSize = ref('2G')
+const chunkSizeNum = ref('2')
+const chunkSizeUnit = ref('G')
 const hashAlgo = ref('md5')
 const outputDir = ref('')
 const mergeMode = ref('quick')
@@ -16,6 +17,7 @@ const progress = reactive({ percent: 0, label: '就绪', done: 0, total: 0 })
 const logs = ref<{time: string, message: string, level: string}[]>([])
 const isDragOver = ref(false)
 
+const chunkSize = computed(() => chunkSizeNum.value + chunkSizeUnit.value)
 const isSplit = computed(() => operation.value === 'split')
 const isMerge = computed(() => operation.value === 'merge')
 const isVerify = computed(() => operation.value === 'verify')
@@ -32,6 +34,7 @@ declare global {
           Verify(req: {manifest: string}): Promise<Error>
           WindowMinimise(): Promise<void>
           WindowClose(): Promise<void>
+          OpenFileDialog(title: string, filter: string): Promise<string>
         }
       }
     }
@@ -47,7 +50,8 @@ function loadConfig() {
     const saved = localStorage.getItem('cutx-config')
     if (saved) {
       const c = JSON.parse(saved)
-      if (c.chunkSize) chunkSize.value = c.chunkSize
+      if (c.chunkSizeNum) chunkSizeNum.value = c.chunkSizeNum
+      if (c.chunkSizeUnit) chunkSizeUnit.value = c.chunkSizeUnit
       if (c.hashAlgo) hashAlgo.value = c.hashAlgo
       if (c.isDark !== undefined) isDark.value = c.isDark
     }
@@ -56,7 +60,8 @@ function loadConfig() {
 
 function saveConfig() {
   localStorage.setItem('cutx-config', JSON.stringify({
-    chunkSize: chunkSize.value,
+    chunkSizeNum: chunkSizeNum.value,
+    chunkSizeUnit: chunkSizeUnit.value,
     hashAlgo: hashAlgo.value,
     isDark: isDark.value,
   }))
@@ -69,17 +74,27 @@ function toggleTheme() {
   saveConfig()
 }
 
-// --- File drop ---
-function onDrop(e: DragEvent) {
-  e.preventDefault()
-  isDragOver.value = false
-  // Wails handles the actual drop via OnFileDrop event
+// --- File browse ---
+async function browseFile() {
+  try {
+    const filter = isVerify.value || isMerge.value
+      ? 'Manifest files (*.manifest.json)|*.manifest.json|JSON files (*.json)|*.json|All files (*.*)|*.*'
+      : 'All files (*.*)|*.*'
+    const path = await window.go.main.App.OpenFileDialog('选择文件', filter)
+    if (path) filePath.value = path
+  } catch {}
 }
+
+// --- Drag handlers (visual feedback only, Wails handles actual drop) ---
 function onDragOver(e: DragEvent) {
   e.preventDefault()
   isDragOver.value = true
 }
 function onDragLeave() {
+  isDragOver.value = false
+}
+function onDrop(e: DragEvent) {
+  e.preventDefault()
   isDragOver.value = false
 }
 
@@ -88,14 +103,12 @@ onMounted(() => {
   loadConfig()
   document.documentElement.classList.toggle('dark', isDark.value)
 
-  // Get version
   window.go?.main?.App?.GetVersion().then((v: string) => {
     version.value = v
   }).catch(() => {
     version.value = 'v1.0.0'
   })
 
-  // Listen for Wails events
   const wailsRuntime = (window as any).runtime
   if (wailsRuntime) {
     wailsRuntime.EventsOn('progress', (data: any) => {
@@ -106,7 +119,6 @@ onMounted(() => {
     })
     wailsRuntime.EventsOn('log', (data: any) => {
       logs.value.push({ time: data.time, message: data.message, level: data.level })
-      // Keep last 200 logs
       if (logs.value.length > 200) logs.value = logs.value.slice(-200)
     })
     wailsRuntime.EventsOn('file-drop', (path: string) => {
@@ -162,15 +174,9 @@ async function startOperation() {
   }
 }
 
-// --- Window controls ---
-function minimiseWindow() {
-  window.go?.main?.App?.WindowMinimise?.()
-}
-function closeWindow() {
-  window.go?.main?.App?.WindowClose?.()
-}
+function minimiseWindow() { window.go?.main?.App?.WindowMinimise?.() }
+function closeWindow() { window.go?.main?.App?.WindowClose?.() }
 
-// --- Helpers ---
 function formatBytes(b: number): string {
   if (b >= 1073741824) return (b / 1073741824).toFixed(1) + ' GB'
   if (b >= 1048576) return (b / 1048576).toFixed(1) + ' MB'
@@ -178,13 +184,12 @@ function formatBytes(b: number): string {
   return b + ' B'
 }
 
-// Save config when values change
-watch([chunkSize, hashAlgo, isDark], saveConfig)
+watch([chunkSizeNum, chunkSizeUnit, hashAlgo, isDark], saveConfig)
 </script>
 
 <template>
   <div class="h-screen flex flex-col" :style="{ background: 'var(--bg-base)' }">
-    <!-- Custom Title Bar (frameless) -->
+    <!-- Title Bar -->
     <div class="titlebar-drag flex items-center justify-between px-4 py-2.5"
          :style="{ background: 'var(--bg-panel)', borderBottom: '1px solid var(--color-border)' }">
       <div class="flex items-center gap-2.5">
@@ -195,7 +200,7 @@ watch([chunkSize, hashAlgo, isDark], saveConfig)
       </div>
       <div class="flex items-center gap-1 no-drag">
         <button @click="toggleTheme" class="p-1.5 rounded-lg transition-colors hover:bg-white/5"
-                :title="isDark ? '切换浅色' : '切换深色'">
+                :title="isDark ? '浅色' : '深色'">
           <svg v-if="isDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-text-muted)">
             <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>
           </svg>
@@ -231,29 +236,31 @@ watch([chunkSize, hashAlgo, isDark], saveConfig)
           </button>
         </div>
 
+        <!-- Drop zone with Wails drop target + browse button -->
         <div class="drop-zone" :class="{ 'drag-over': isDragOver }"
+             style="--wails-drop-target: drop-zone"
              @dragover="onDragOver" @dragleave="onDragLeave" @drop="onDrop"
-             @click="filePath = ''">
+             @click="browseFile">
           <div class="text-2xl mb-1" style="color: var(--color-text-muted)">📂</div>
-          <p class="text-sm" style="color: var(--color-text-muted)">拖拽文件到此处</p>
+          <p class="text-sm" style="color: var(--color-text-muted)">拖拽文件到此处，或点击浏览</p>
           <p v-if="filePath" class="text-xs mt-1.5 break-all font-mono" style="color: var(--color-accent)">{{ filePath }}</p>
         </div>
       </div>
 
-      <!-- Card 2: Split Parameters (only for split) -->
+      <!-- Card 2: Split Parameters -->
       <div v-if="isSplit" class="card">
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium mb-1.5" style="color: var(--color-text-muted)">切割大小</label>
-            <select v-model="chunkSize" class="cursor-pointer">
-              <option value="2G">2G</option>
-              <option value="1G">1G</option>
-              <option value="500M">500M</option>
-              <option value="100M">100M</option>
-              <option value="50M">50M</option>
-              <option value="10M">10M</option>
-              <option value="1M">1M</option>
-            </select>
+            <div class="flex gap-2">
+              <input v-model="chunkSizeNum" type="number" min="1" placeholder="2"
+                     class="flex-1 text-center" style="font-family: var(--color-text)">
+              <select v-model="chunkSizeUnit" class="cursor-pointer" style="width: 90px">
+                <option value="G">GB</option>
+                <option value="M">MB</option>
+                <option value="K">KB</option>
+              </select>
+            </div>
           </div>
           <div>
             <label class="block text-xs font-medium mb-1.5" style="color: var(--color-text-muted)">校验算法</label>
@@ -269,7 +276,7 @@ watch([chunkSize, hashAlgo, isDark], saveConfig)
         </div>
       </div>
 
-      <!-- Card 3: Merge Parameters (only for merge) -->
+      <!-- Card 3: Merge Parameters -->
       <div v-if="isMerge" class="card">
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -298,7 +305,6 @@ watch([chunkSize, hashAlgo, isDark], saveConfig)
 
       <!-- Card 4: Progress + Log -->
       <div class="card">
-        <!-- Progress -->
         <div class="flex items-center gap-3 mb-2">
           <div class="flex-1">
             <div class="progress-track">
@@ -314,7 +320,6 @@ watch([chunkSize, hashAlgo, isDark], saveConfig)
           <span v-if="progress.total > 0">{{ formatBytes(progress.done) }} / {{ formatBytes(progress.total) }}</span>
         </div>
 
-        <!-- Log -->
         <div class="rounded-lg p-3 h-44 overflow-y-auto font-mono text-xs leading-relaxed"
              style="background: var(--bg-base); border: 1px solid var(--color-border)">
           <div v-for="(log, i) in logs" :key="i" class="whitespace-pre-wrap">
